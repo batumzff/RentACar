@@ -17,6 +17,7 @@ module.exports = {
     },
 
     isStaffOrisAdmin: (req, res, next) => {
+
         if (req.user && (req.user.isAdmin || req.user.isStaff)) {
             next()
         } else {
