@@ -1,15 +1,14 @@
-"use strict"
+"use strict";
 /* -------------------------------------------------------
     NODEJS EXPRESS | CLARUSWAY FullStack Team
 ------------------------------------------------------- */
 // Car Controller:
 
-const Car = require('../models/car')
+const Car = require("../models/car");
 
 module.exports = {
-
-    list: async (req, res) => {
-        /*
+  list: async (req, res) => {
+    /*
             #swagger.tags = ["Cars"]
             #swagger.summary = "List Cars"
             #swagger.description = `
@@ -23,17 +22,23 @@ module.exports = {
             `
         */
 
-        const data = await res.getModelList(Car)
+    // Musait olmayan araçları listeleme:
+    let customFilter = { isAvailable: true };
 
-        res.status(200).send({
-            error: false,
-            details: await res.getModelListDetails(Car),
-            data
-        })
-    },
+    const data = await res.getModelList(Car, customFilter, [
+      { path: "createdId", select: "username" },
+      { path: "updatedId", select: "username" },
+    ]);
 
-    create: async (req, res) => {
-        /*
+    res.status(200).send({
+      error: false,
+      details: await res.getModelListDetails(Car, customFilter),
+      data,
+    });
+  },
+
+  create: async (req, res) => {
+    /*
             #swagger.tags = ["Cars"]
             #swagger.summary = "Create Car"
             #swagger.parameters['body'] = {
@@ -45,35 +50,37 @@ module.exports = {
             }
         */
 
-        // createdId ve updatedId verisini req.user'dan al:
-        req.body.createdId = req.user._id
-        req.body.updatedId = req.user._id
+    // createdId ve updatedId verisini req.user'dan al:
+    req.body.createdId = req.user._id;
+    req.body.updatedId = req.user._id;
 
-        const data = await Car.create(req.body)
+    const data = await Car.create(req.body);
 
-        res.status(201).send({
-            error: false,
-            data
-        })
-    },
+    res.status(201).send({
+      error: false,
+      data,
+    });
+  },
 
-    read: async (req, res) => {
-        /*
+  read: async (req, res) => {
+    /*
             #swagger.tags = ["Cars"]
             #swagger.summary = "Get Single Car"
         */
 
-        const data = await Car.findOne({ _id: req.params.id })
+    const data = await Car.findOne({ _id: req.params.id }).populate([
+      { path: "createdId", select: "username" },
+      { path: "updatedId", select: "username" },
+    ]);
 
-        res.status(200).send({
-            error: false,
-            data
-        })
+    res.status(200).send({
+      error: false,
+      data,
+    });
+  },
 
-    },
-
-    update: async (req, res) => {
-        /*
+  update: async (req, res) => {
+    /*
             #swagger.tags = ["Cars"]
             #swagger.summary = "Update Car"
             #swagger.parameters['body'] = {
@@ -85,31 +92,31 @@ module.exports = {
             }
         */
 
-        // updatedId verisini req.user'dan al:
-        req.body.updatedId = req.user._id
+    // updatedId verisini req.user'dan al:
+    req.body.updatedId = req.user._id;
 
-        const data = await Car.updateOne(customFilter, req.body, { runValidators: true })
+    const data = await Car.updateOne(customFilter, req.body, {
+      runValidators: true,
+    });
 
-        res.status(202).send({
-            error: false,
-            data,
-            new: await Car.findOne({ _id: req.params.id })
-        })
+    res.status(202).send({
+      error: false,
+      data,
+      new: await Car.findOne({ _id: req.params.id }),
+    });
+  },
 
-    },
-
-    delete: async (req, res) => {
-        /*
+  delete: async (req, res) => {
+    /*
             #swagger.tags = ["Cars"]
             #swagger.summary = "Delete Car"
         */
 
-        const data = await Car.deleteOne({ _id: req.params.id })
+    const data = await Car.deleteOne({ _id: req.params.id });
 
-        res.status(data.deletedCount ? 204 : 404).send({
-            error: !data.deletedCount,
-            data
-        })
-
-    },
-}
+    res.status(data.deletedCount ? 204 : 404).send({
+      error: !data.deletedCount,
+      data,
+    });
+  },
+};
